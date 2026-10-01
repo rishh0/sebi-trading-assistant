@@ -1,0 +1,22 @@
+SECURITIES TRANSACTION TAX (STT) — RATE STRUCTURE REFERENCE NOTES
+
+1. WHAT STT IS
+Securities Transaction Tax (STT) is a direct tax levied by the Government of India on the value of specified securities transactions executed on a recognized stock exchange. It came into effect from October 1, 2004 under the Finance Act, 2004 and the Securities Transaction Tax Rules, 2004. It is collected at source by the stock exchange at the time of the transaction, making it difficult to evade, and is separate from brokerage, GST on brokerage, stamp duty, and exchange transaction charges that also appear on a contract note.
+
+2. STT DOES NOT APPLY TO
+Off-market transactions (i.e., transfer of securities outside a recognized stock exchange, such as an off-market transfer between demat accounts) are not subject to STT, since STT is specifically a transaction tax tied to exchange-executed trades.
+
+3. RATE STRUCTURE BY SEGMENT (rates have changed over time via Union Budget amendments; a trader should always confirm the rate applicable to their specific financial year, since this is one of the more frequently revised rates)
+- Equity delivery-based trades (both buy and sell side): approximately 0.1% of transaction value, charged to both buyer and seller.
+- Equity intraday trades (no delivery taken): a lower rate, historically around 0.025%, charged only on the sell side.
+- Futures (equity and index): charged on the sell side, as a percentage of the transaction/settlement value. This rate was revised upward via the Union Budget 2024, roughly doubling from its earlier level — a trader should check the rate in effect for the specific financial year being analyzed, since this is exactly the kind of figure that changes and should not be assumed static.
+- Options (equity and index): charged on the premium value, on the sell side (payable by the seller/writer of the option), and separately on exercised/settled options based on the intrinsic value difference. Like futures STT, the options STT rate was also revised upward in the Union Budget 2024.
+- Equity-oriented mutual fund units: a very small STT applies at the time of redemption, historically around 0.001% of transaction value, generally only on the sell/redemption side.
+
+4. WHY STT RATES MATTER FOR TAX TREATMENT, NOT JUST AS A COST
+STT paid is relevant beyond being a transaction cost:
+- For equity DELIVERY-based transactions, whether STT was paid determines which capital-gains tax regime applies (STT-paid delivery trades qualify for concessional long-term/short-term capital gains treatment under the applicable sections; transactions where STT was not paid, such as many off-market or unlisted security transactions, do not get this concessional treatment and may instead be taxed at slab rates or face a different holding-period definition for long-term classification).
+- For F&O (business income) traders, STT paid is generally allowable as a deductible business expense when computing non-speculative business income — this is different from the investor/capital-gains route, where STT is not separately deductible as an expense against capital gains since it is already factored into the concessional rate structure.
+
+5. PRACTICAL NOTE
+Because STT rates are revised periodically through the Union Budget, any specific numeric rate should be treated as "the rate as of the circular/budget it was set in" rather than a permanently fixed figure — this is precisely the kind of detail a grounded RAG assistant should flag as "verify current rate" rather than asserting confidently if the underlying document's effective date is older than the question being asked.

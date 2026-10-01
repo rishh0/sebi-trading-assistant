@@ -1,0 +1,251 @@
+[
+  {
+    "id": 1,
+    "question": "What is the peak margin framework and how is penalty calculated?",
+    "type": "should_answer",
+    "expected_answer_summary": "Penalty is based on comparing EOD margin and peak margin (across intraday snapshots) against what the client actually has available; whichever shows the higher shortfall is used for penalty, as per the phased adoption percentages.",
+    "expected_source": "01_sebi_peak_margin_circular.txt",
+    "actual_answer": "**Peak\u2011margin framework (as per SEBI circulars)**  \n\n1. **Reporting** \u2013 Every member must report, at the end of each day,  \n   * the **EOD margin obligation** of each client and the **peak\u2011margin obligation** of each client across all intra\u2011day snapshots.  \n2. **Comparison** \u2013  \n   * (a) Compare the client\u2019s EOD margin obligation with the margin actually available with the member\u2019s TM/CM at EOD.  \n   * (b) Compare the client\u2019s peak\u2011margin obligation (across all snapshots) with the margin actually available with the member\u2019s TM/CM during the day.  \n3. **Shortfall determination** \u2013 The higher shortfall between (a) and (b) is used for penalty purposes.  \n4. **Phased adoption** \u2013  \n   * Dec\u202f2020\u2013Feb\u202f2021: 25\u202f% of peak\u2011margin obligation is compared.  \n   * Mar\u202f2021\u2013May\u202f2021: 50\u202f% of peak\u2011margin obligation.  \n   * Jun\u202f2021\u2013Aug\u202f2021: 75\u202f% of peak\u2011margin obligation.  \n   * Sep\u202f2021 onward: 100\u202f% of peak\u2011margin obligation.  \n   During the phased period the member must show that the remaining (un\u2011phased) portion of the peak\u2011margin obligation is funded from its own funds, not from other clients\u2019 funds.\n\n**Penalty calculation",
+    "actual_sources": [
+      "01_sebi_peak_margin_circular.txt",
+      "02_BOD_Margin_Ammendment.pdf",
+      "03_NSE_Margin_Reporting.pdf"
+    ]
+  },
+  {
+    "id": 2,
+    "question": "When did the peak margin framework come into effect?",
+    "type": "should_answer",
+    "expected_answer_summary": "The circular provisions came into effect from December 01, 2020.",
+    "expected_source": "01_sebi_peak_margin_circular.txt",
+    "actual_answer": "The peak\u2011margin framework was first implemented in December\u202f2020.",
+    "actual_sources": [
+      "01_sebi_peak_margin_circular.txt",
+      "02_BOD_Margin_Ammendment.pdf"
+    ]
+  },
+  {
+    "id": 3,
+    "question": "What are the phased adoption percentages for peak margin obligation?",
+    "type": "should_answer",
+    "expected_answer_summary": "25% in Phase 1 (Dec 2020-Feb 2021), 50% in Phase 2 (Mar-May 2021), 75% in Phase 3 (Jun-Aug 2021), 100% in Phase 4 (from Sep 2021 onward).",
+    "expected_source": "01_sebi_peak_margin_circular.txt",
+    "actual_answer": "The phased adoption percentages for peak margin obligation are:\n\n- **Phase\u202f1 (Dec\u202f2020\u202f\u2013\u202fFeb\u202f2021):** 25%  \n- **Phase\u202f2 (Mar\u202f2021\u202f\u2013\u202fMay\u202f2021):** 50%  \n- **Phase\u202f3 (Jun\u202f2021\u202f\u2013\u202fAug\u202f2021):** 75%  \n- **Phase\u202f4 (Sep\u202f2021 onward):** 100%",
+    "actual_sources": [
+      "01_sebi_peak_margin_circular.txt",
+      "02_BOD_Margin_Ammendment.pdf"
+    ]
+  },
+  {
+    "id": 4,
+    "question": "What changed in the February 2023 amendment to the margin framework?",
+    "type": "should_answer",
+    "expected_answer_summary": "Both peak margin and EOD margin penalties are calculated using Beginning of Day (BOD) margin parameters instead of intraday-fluctuating rates; effective from May 02, 2023; no change to how the client's EOD margin obligation itself is calculated.",
+    "expected_source": "01_sebi_peak_margin_circular.txt",
+    "actual_answer": "The February\u202f2023 amendment changed how penalties are calculated: both peak\u2011margin and end\u2011of\u2011day (EOD) margin penalties are now computed using the fixed **Beginning\u2011of\u2011Day (BOD) margin parameters** instead of the intraday\u2011fluctuating margin rates. The method for collecting the client\u2019s EOD margin obligation itself remains unchanged.",
+    "actual_sources": [
+      "01_sebi_peak_margin_circular.txt",
+      "02_BOD_Margin_Ammendment.pdf"
+    ]
+  },
+  {
+    "id": 5,
+    "question": "What is the exact penalty percentage charged for margin shortfall?",
+    "type": "should_decline",
+    "expected_answer_summary": "Should decline or express uncertainty \u2014 the documents describe the shortfall comparison mechanism but do not state a specific penalty percentage/amount.",
+    "expected_source": null,
+    "actual_answer": "I don't have enough information in my documents to answer this confidently \u2014 please verify with a CA or your broker.",
+    "actual_sources": [
+      "01_sebi_peak_margin_circular.txt",
+      "05_tax_audit_44ab_notes.txt"
+    ]
+  },
+  {
+    "id": 6,
+    "question": "Is F&O trading income classified as speculative or non-speculative income?",
+    "type": "should_answer",
+    "expected_answer_summary": "Non-speculative business income under Section 43(5), since derivatives trading on a recognized exchange is excluded from the definition of speculative transaction.",
+    "expected_source": "04_fo_taxation_notes.txt",
+    "actual_answer": "F&O trading income is classified as **non\u2011speculative business income** (reported under \u201cProfits and Gains of Business or Profession\u201d \u2013 PGBP).",
+    "actual_sources": [
+      "04_fo_taxation_notes.txt",
+      "05_tax_audit_44ab_notes.txt",
+      "06_ITAT_Tribunal_Order.pdf"
+    ]
+  },
+  {
+    "id": 7,
+    "question": "Which ITR form should someone with F&O trading income use?",
+    "type": "should_answer",
+    "expected_answer_summary": "ITR-3 (or ITR-4 under presumptive taxation Section 44AD if eligible), not ITR-1 or ITR-2.",
+    "expected_source": "04_fo_taxation_notes.txt",
+    "actual_answer": "Individuals with F&O trading income must file either **ITR\u20113** (regular business income) or, if they qualify for and choose the presumptive taxation scheme under Section\u202f44AD, **ITR\u20114**. ITR\u20111 or ITR\u20112 are not suitable for F&O traders.",
+    "actual_sources": [
+      "04_fo_taxation_notes.txt",
+      "05_tax_audit_44ab_notes.txt"
+    ]
+  },
+  {
+    "id": 8,
+    "question": "Can F&O trading losses be set off against salary income?",
+    "type": "should_answer",
+    "expected_answer_summary": "No \u2014 non-speculative business losses (including F&O) can be set off against any other head except salary income.",
+    "expected_source": "04_fo_taxation_notes.txt",
+    "actual_answer": "No.\u202fF&O losses are treated as non\u2011speculative business losses and can be set off against income from any other head in the same year **except** salary income.",
+    "actual_sources": [
+      "04_fo_taxation_notes.txt"
+    ]
+  },
+  {
+    "id": 9,
+    "question": "For how many years can F&O business losses be carried forward?",
+    "type": "should_answer",
+    "expected_answer_summary": "Up to 8 assessment years.",
+    "expected_source": "04_fo_taxation_notes.txt",
+    "actual_answer": "F&O business losses can be carried forward for up to **8 assessment years**.",
+    "actual_sources": [
+      "04_fo_taxation_notes.txt",
+      "06_ITAT_Tribunal_Order.pdf"
+    ]
+  },
+  {
+    "id": 10,
+    "question": "How is turnover calculated for F&O trading for tax purposes?",
+    "type": "should_answer",
+    "expected_answer_summary": "Absolute sum of profit/loss per settled trade, plus option premium received on sale, plus the difference on exercised/expired options \u2014 not the notional contract value.",
+    "expected_source": "04_fo_taxation_notes.txt",
+    "actual_answer": "For tax purposes, \u201cturnover\u201d in F&O trading is **not** the total value of contracts bought or sold.  \nIt is calculated as:\n\n1. **Absolute sum of all profits and losses** from each individual trade that was settled during the year.  \n2. **Add** the premium received on the sale of options (regardless of whether the option was exercised).  \n3. **Add** the difference on exercised or expired options where the strike price differs from the settlement price.\n\nThe resulting figure is the turnover used for determining tax\u2011audit applicability and other tax calculations.",
+    "actual_sources": [
+      "04_fo_taxation_notes.txt",
+      "05_tax_audit_44ab_notes.txt",
+      "06_ITAT_Tribunal_Order.pdf"
+    ]
+  },
+  {
+    "id": 11,
+    "question": "At what turnover level is a tax audit mandatory for F&O traders regardless of profit or loss?",
+    "type": "should_answer",
+    "expected_answer_summary": "Turnover exceeding Rs 10 crore \u2014 mandatory under Section 44AB(a) regardless of profit/loss percentage.",
+    "expected_source": "05_tax_audit_44ab_notes.txt",
+    "actual_answer": "A tax audit is mandatory for F&O traders when their turnover exceeds **\u20b910\u202fcrore**, regardless of whether they have a profit or a loss.",
+    "actual_sources": [
+      "05_tax_audit_44ab_notes.txt",
+      "06_ITAT_Tribunal_Order.pdf"
+    ]
+  },
+  {
+    "id": 12,
+    "question": "Is a tax audit required just because a trader made a loss in F&O?",
+    "type": "should_answer",
+    "expected_answer_summary": "Not automatically \u2014 depends on turnover level and profit/loss-to-turnover ratio at that level, not simply on having a loss.",
+    "expected_source": "05_tax_audit_44ab_notes.txt",
+    "actual_answer": "No. A loss alone does not automatically trigger a tax audit for an F&O trader.  \nAudit requirements depend on:\n\n1. **Turnover** \u2013 the absolute\u2011profit/loss turnover of F&O trades.  \n2. **Profit\u2011to\u2011turnover ratio** \u2013 for turnover up to \u20b92\u202fcrore, audit is required only if the declared profit is less than 6\u202f% of turnover (or a loss is declared) **and** other conditions (income above basic exemption, no presumptive taxation) are met.  \n3. **Digital transaction condition** \u2013 for turnover between \u20b92\u202fcrore and \u20b910\u202fcrore, audit is not mandatory if >95\u202f% of transactions are digital; otherwise the lower\u2011turnover rules apply.  \n4. **Turnover above \u20b910\u202fcrore** \u2013 audit is mandatory regardless of profit or loss.\n\nSo a loss triggers audit only when it falls within the applicable turnover thresholds and other criteria.",
+    "actual_sources": [
+      "05_tax_audit_44ab_notes.txt",
+      "06_ITAT_Tribunal_Order.pdf"
+    ]
+  },
+  {
+    "id": 13,
+    "question": "What is the penalty for failing to get a mandatory tax audit done?",
+    "type": "should_answer",
+    "expected_answer_summary": "Under Section 271B, generally the lower of 0.5% of turnover or a fixed amount specified in the Act, subject to reasonable cause.",
+    "expected_source": "05_tax_audit_44ab_notes.txt",
+    "actual_answer": "The penalty for failing to obtain a mandatory tax audit (when required) is under Section\u202f271B of the Income Tax Act. It is the **lower of 0.5\u202f% of the taxpayer\u2019s turnover or the fixed rupee amount specified in the Act**, provided the taxpayer cannot show reasonable cause for the failure.",
+    "actual_sources": [
+      "05_tax_audit_44ab_notes.txt",
+      "06_ITAT_Tribunal_Order.pdf"
+    ]
+  },
+  {
+    "id": 14,
+    "question": "Does STT apply to off-market share transfers?",
+    "type": "should_answer",
+    "expected_answer_summary": "No \u2014 STT applies only to exchange-executed transactions, not off-market transfers between demat accounts.",
+    "expected_source": "07_stt_rates_notes.txt",
+    "actual_answer": "No. Off\u2011market share transfers (e.g., transfers between demat accounts outside a recognized stock exchange) are not subject to Securities Transaction Tax.",
+    "actual_sources": [
+      "06_ITAT_Tribunal_Order.pdf",
+      "07_stt_rates_notes.txt"
+    ]
+  },
+  {
+    "id": 15,
+    "question": "Is STT separately deductible as an expense against capital gains?",
+    "type": "should_answer",
+    "expected_answer_summary": "No for the capital-gains/investor route (already factored into concessional rates); but STT is generally allowable as a business expense for F&O (business income) traders.",
+    "expected_source": "07_stt_rates_notes.txt",
+    "actual_answer": "No. For capital\u2011gain calculations, STT is already built into the concessional rate structure, so it cannot be deducted separately as an expense.",
+    "actual_sources": [
+      "04_fo_taxation_notes.txt",
+      "06_ITAT_Tribunal_Order.pdf",
+      "07_stt_rates_notes.txt"
+    ]
+  },
+  {
+    "id": 16,
+    "question": "What is the STT rate on equity delivery trades?",
+    "type": "should_answer",
+    "expected_answer_summary": "Approximately 0.1% of transaction value, charged to both buyer and seller (should note rates change via Union Budget and verify current rate).",
+    "expected_source": "07_stt_rates_notes.txt",
+    "actual_answer": "The STT on equity delivery\u2011based trades is about **0.1\u202f% of the transaction value** (charged to both the buyer and the seller).",
+    "actual_sources": [
+      "07_stt_rates_notes.txt"
+    ]
+  },
+  {
+    "id": 17,
+    "question": "Which stock should I buy tomorrow for quick profit?",
+    "type": "should_decline",
+    "expected_answer_summary": "Should decline \u2014 this is a stock-picking request, completely outside the scope of margin rules and tax documents.",
+    "expected_source": null,
+    "actual_answer": "I don't have enough information in my documents to answer this confidently \u2014 please verify with a CA or your broker.",
+    "actual_sources": [
+      "04_fo_taxation_notes.txt",
+      "05_tax_audit_44ab_notes.txt",
+      "07_stt_rates_notes.txt"
+    ]
+  },
+  {
+    "id": 18,
+    "question": "What is the weather like in Mumbai today?",
+    "type": "should_decline",
+    "expected_answer_summary": "Should decline \u2014 totally unrelated to the document corpus.",
+    "expected_source": null,
+    "actual_answer": "I don't have enough information in my documents to answer this confidently \u2014 please verify with a reliable weather source.",
+    "actual_sources": [
+      "02_BOD_Margin_Ammendment.pdf",
+      "04_fo_taxation_notes.txt",
+      "06_ITAT_Tribunal_Order.pdf",
+      "07_stt_rates_notes.txt"
+    ]
+  },
+  {
+    "id": 19,
+    "question": "How do I set up a joint demat account with my spouse?",
+    "type": "should_decline",
+    "expected_answer_summary": "Should decline \u2014 demat account opening procedures are not covered in the margin/tax documents provided.",
+    "expected_source": null,
+    "actual_answer": "I don't have enough information in my documents to answer this confidently \u2014 please verify with a CA or your broker.",
+    "actual_sources": [
+      "01_sebi_peak_margin_circular.txt",
+      "02_BOD_Margin_Ammendment.pdf",
+      "05_tax_audit_44ab_notes.txt",
+      "06_ITAT_Tribunal_Order.pdf"
+    ]
+  },
+  {
+    "id": 20,
+    "question": "Can you recommend a good broker for F&O trading in India?",
+    "type": "should_decline",
+    "expected_answer_summary": "Should decline \u2014 broker recommendations are outside the scope of regulatory/tax documents.",
+    "expected_source": null,
+    "actual_answer": "I don't have enough information in my documents to answer this confidently \u2014 please verify with a CA or your broker.",
+    "actual_sources": [
+      "01_sebi_peak_margin_circular.txt",
+      "02_BOD_Margin_Ammendment.pdf",
+      "04_fo_taxation_notes.txt",
+      "06_ITAT_Tribunal_Order.pdf"
+    ]
+  }
+]

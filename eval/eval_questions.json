@@ -1,0 +1,142 @@
+[
+    {
+      "id": 1,
+      "question": "What is the peak margin framework and how is penalty calculated?",
+      "expected_answer_summary": "Penalty is based on comparing EOD margin and peak margin (across intraday snapshots) against what the client actually has available; whichever shows the higher shortfall is used for penalty, as per the phased adoption percentages.",
+      "expected_source": "01_sebi_peak_margin_circular.txt",
+      "type": "should_answer"
+    },
+    {
+      "id": 2,
+      "question": "When did the peak margin framework come into effect?",
+      "expected_answer_summary": "The circular provisions came into effect from December 01, 2020.",
+      "expected_source": "01_sebi_peak_margin_circular.txt",
+      "type": "should_answer"
+    },
+    {
+      "id": 3,
+      "question": "What are the phased adoption percentages for peak margin obligation?",
+      "expected_answer_summary": "25% in Phase 1 (Dec 2020-Feb 2021), 50% in Phase 2 (Mar-May 2021), 75% in Phase 3 (Jun-Aug 2021), 100% in Phase 4 (from Sep 2021 onward).",
+      "expected_source": "01_sebi_peak_margin_circular.txt",
+      "type": "should_answer"
+    },
+    {
+      "id": 4,
+      "question": "What changed in the February 2023 amendment to the margin framework?",
+      "expected_answer_summary": "Both peak margin and EOD margin penalties are calculated using Beginning of Day (BOD) margin parameters instead of intraday-fluctuating rates; effective from May 02, 2023; no change to how the client's EOD margin obligation itself is calculated.",
+      "expected_source": "01_sebi_peak_margin_circular.txt",
+      "type": "should_answer"
+    },
+    {
+      "id": 5,
+      "question": "What is the exact penalty percentage charged for margin shortfall?",
+      "expected_answer_summary": "Should decline or express uncertainty — the documents describe the shortfall comparison mechanism but do not state a specific penalty percentage/amount.",
+      "expected_source": null,
+      "type": "should_decline"
+    },
+    {
+      "id": 6,
+      "question": "Is F&O trading income classified as speculative or non-speculative income?",
+      "expected_answer_summary": "Non-speculative business income under Section 43(5), since derivatives trading on a recognized exchange is excluded from the definition of speculative transaction.",
+      "expected_source": "04_fo_taxation_notes.txt",
+      "type": "should_answer"
+    },
+    {
+      "id": 7,
+      "question": "Which ITR form should someone with F&O trading income use?",
+      "expected_answer_summary": "ITR-3 (or ITR-4 under presumptive taxation Section 44AD if eligible), not ITR-1 or ITR-2.",
+      "expected_source": "04_fo_taxation_notes.txt",
+      "type": "should_answer"
+    },
+    {
+      "id": 8,
+      "question": "Can F&O trading losses be set off against salary income?",
+      "expected_answer_summary": "No — non-speculative business losses (including F&O) can be set off against any other head except salary income.",
+      "expected_source": "04_fo_taxation_notes.txt",
+      "type": "should_answer"
+    },
+    {
+      "id": 9,
+      "question": "For how many years can F&O business losses be carried forward?",
+      "expected_answer_summary": "Up to 8 assessment years.",
+      "expected_source": "04_fo_taxation_notes.txt",
+      "type": "should_answer"
+    },
+    {
+      "id": 10,
+      "question": "How is turnover calculated for F&O trading for tax purposes?",
+      "expected_answer_summary": "Absolute sum of profit/loss per settled trade, plus option premium received on sale, plus the difference on exercised/expired options — not the notional contract value.",
+      "expected_source": "04_fo_taxation_notes.txt",
+      "type": "should_answer"
+    },
+    {
+      "id": 11,
+      "question": "At what turnover level is a tax audit mandatory for F&O traders regardless of profit or loss?",
+      "expected_answer_summary": "Turnover exceeding Rs 10 crore — mandatory under Section 44AB(a) regardless of profit/loss percentage.",
+      "expected_source": "05_tax_audit_44ab_notes.txt",
+      "type": "should_answer"
+    },
+    {
+      "id": 12,
+      "question": "Is a tax audit required just because a trader made a loss in F&O?",
+      "expected_answer_summary": "Not automatically — depends on turnover level and profit/loss-to-turnover ratio at that level, not simply on having a loss.",
+      "expected_source": "05_tax_audit_44ab_notes.txt",
+      "type": "should_answer"
+    },
+    {
+      "id": 13,
+      "question": "What is the penalty for failing to get a mandatory tax audit done?",
+      "expected_answer_summary": "Under Section 271B, generally the lower of 0.5% of turnover or a fixed amount specified in the Act, subject to reasonable cause.",
+      "expected_source": "05_tax_audit_44ab_notes.txt",
+      "type": "should_answer"
+    },
+    {
+      "id": 14,
+      "question": "Does STT apply to off-market share transfers?",
+      "expected_answer_summary": "No — STT applies only to exchange-executed transactions, not off-market transfers between demat accounts.",
+      "expected_source": "07_stt_rates_notes.txt",
+      "type": "should_answer"
+    },
+    {
+      "id": 15,
+      "question": "Is STT separately deductible as an expense against capital gains?",
+      "expected_answer_summary": "No for the capital-gains/investor route (already factored into concessional rates); but STT is generally allowable as a business expense for F&O (business income) traders.",
+      "expected_source": "07_stt_rates_notes.txt",
+      "type": "should_answer"
+    },
+    {
+      "id": 16,
+      "question": "What is the STT rate on equity delivery trades?",
+      "expected_answer_summary": "Approximately 0.1% of transaction value, charged to both buyer and seller (should note rates change via Union Budget and verify current rate).",
+      "expected_source": "07_stt_rates_notes.txt",
+      "type": "should_answer"
+    },
+    {
+      "id": 17,
+      "question": "Which stock should I buy tomorrow for quick profit?",
+      "expected_answer_summary": "Should decline — this is a stock-picking request, completely outside the scope of margin rules and tax documents.",
+      "expected_source": null,
+      "type": "should_decline"
+    },
+    {
+      "id": 18,
+      "question": "What is the weather like in Mumbai today?",
+      "expected_answer_summary": "Should decline — totally unrelated to the document corpus.",
+      "expected_source": null,
+      "type": "should_decline"
+    },
+    {
+      "id": 19,
+      "question": "How do I set up a joint demat account with my spouse?",
+      "expected_answer_summary": "Should decline — demat account opening procedures are not covered in the margin/tax documents provided.",
+      "expected_source": null,
+      "type": "should_decline"
+    },
+    {
+      "id": 20,
+      "question": "Can you recommend a good broker for F&O trading in India?",
+      "expected_answer_summary": "Should decline — broker recommendations are outside the scope of regulatory/tax documents.",
+      "expected_source": null,
+      "type": "should_decline"
+    }
+  ]

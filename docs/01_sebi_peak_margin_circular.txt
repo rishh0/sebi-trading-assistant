@@ -1,0 +1,56 @@
+SECURITIES AND EXCHANGE BOARD OF INDIA
+CIRCULAR
+SEBI/HO/MRD2/DCAP/CIR/P/2020/127
+July 20, 2020
+
+To
+All Recognized Stock Exchanges and Clearing Corporations (except Stock Exchanges and Clearing Corporations in International Financial Services Centre)
+
+Subject: Framework to Enable Verification of Upfront Collection of Margins from Clients in Cash and Derivatives segments
+
+1. With respect to equity derivatives and currency derivatives segments, Stock Exchanges/Clearing Corporations have mandated clearing members/trading members to collect applicable margins from their clients/constituents on an upfront basis. Similarly, SEBI Circulars CIR/CDMRD/DRMP/01/2015 dated October 01, 2015 and SEBI/HO/CDMRD/DRMP/CIR/P/2016/80 dated September 07, 2016 directed National Commodity Derivatives Exchanges to require members to collect Initial Margin and ELM upfront from their clients at the time of trade.
+
+2. In order to align and streamline the risk management framework of both cash and derivatives segments, with respect to collection of margins from clients and reporting of short-collection/non-collection of margins, SEBI, vide Circular no. CIR/HO/MIRSD/DOP/CIR/P/2019/139 dated November 19, 2019, required Trading Members (TMs)/Clearing Members (CMs) in the cash segment to mandatorily collect upfront VaR margins and ELM from clients.
+
+3. Subsequent to the aforesaid Circular, representations were received from market participants raising issues in operationalization of collection of upfront margin from clients. SEBI held detailed discussions with market participants to evolve a monitoring mechanism for verification of upfront collection of margin.
+
+4. Based on deliberations, with an objective to enable uniform verification of upfront collection of margins from clients by TM/CM and levy of penalty across segments, it has been decided that Stock Exchanges/Clearing Corporations shall adopt the framework specified in the Annexure, for the purpose of 'Mechanism for regular monitoring of and penalty for short-collection/non-collection of margins from clients' in Cash and Derivatives segments.
+
+5. It is reiterated that applicable upfront margins are required to be collected from clients in advance of the trade. The framework prescribed in the Annexure is only for the purpose of verification of upfront collection of margin and levy of penalty.
+
+6. The provisions of the Circular SEBI/HO/CDMRD/DRMP/CIR/P/2019/149 dated November 29, 2019 shall, accordingly, be amended to the extent mentioned above. All other provisions/conditions specified in that circular shall remain unchanged.
+
+7. The provisions of this Circular shall come into effect from December 01, 2020.
+
+8. Stock Exchanges and Clearing Corporations are directed to:
+(a) take necessary steps to put in place systems for implementation of the circular, including necessary amendments to relevant bye-laws, rules and regulations;
+(b) bring the provisions of this circular to the notice of their members and disseminate the same on their websites; and
+(c) communicate to SEBI the status of implementation in the Monthly Development Report.
+
+9. This circular is issued in exercise of the powers conferred under Section 11(1) of the Securities and Exchange Board of India Act 1992, read with Section 10 of the Securities Contracts (Regulation) Act, 1956, to protect the interests of investors in securities and to promote the development of, and to regulate, the securities market.
+
+ANNEXURE: Framework to Enable Verification of Upfront Collection of Margins from Clients in Cash and Derivatives segments
+
+(i) Clearing Corporations shall send a minimum of 4 snapshots of client-wise margin requirement to TMs/CMs per day, so they know the intraday margin requirement per client in each segment. Snapshots are taken randomly within pre-defined time windows. For the commodity derivatives segment, the last snapshot shall be generated at 5 PM, and EOD margin shall also be determined accordingly.
+
+(ii) The client-wise margin file (MG-12/13) provided by CCs to TMs/CMs shall contain the EOD margin requirement of the client as well as the peak margin requirement of the client across each of the intra-day snapshots.
+
+(iii) The member shall report the margin collected from each client, as at EOD and peak margin collected during the day, as follows:
+(a) EOD margin obligation of the client shall be compared with the respective client margin available with the TM/CM at EOD.
+AND
+(b) Peak margin obligation of the client, across the snapshots, shall be compared with the respective client peak margin available with the TM/CM during the day.
+Whichever of (a) or (b) shows the higher shortfall in margin collection shall be considered for levying of penalty as per the extant framework.
+
+(iv) Verification of availability of margins with TM/CM, as at (iii)(a) and (iii)(b), shall be done by exchanges/clearing corporations on a weekly basis, by verification of balances in the books/ledgers of the TM/CM in respect of the client.
+
+PHASED ADOPTION
+The peak margin obligation of the client across snapshots, as at (iii)(b), was adopted in a phased manner:
+- Phase 1 (first 3 months from implementation, i.e. Dec 2020 - Feb 2021): 25% of peak margin obligation across snapshots compared against client peak margin available with TM/CM during the day.
+- Phase 2 (next 3 months, Mar 2021 - May 2021): 50% of peak margin obligation.
+- Phase 3 (next 3 months, Jun 2021 - Aug 2021): 75% of peak margin obligation.
+- Phase 4 (from Sep 2021 onward): 100% of peak margin obligation.
+
+Shortfall in collection of margins shall be calculated taking into consideration the phased adoption above. During the phased-adoption period, the member must be able to demonstrate that the balance peak margin obligation (i.e., peak margin obligation minus the applicable phase percentage) has been funded from the member's own funds, and not from any other client's funds.
+
+SUBSEQUENT AMENDMENTS (for context — summarized, not verbatim from source circulars):
+- SEBI circular SEBI/HO/MRD/MRD-PoD-2/P/CIR/2023/016 dated February 01, 2023 amended the framework so that both peak margin and EOD margin penalties are calculated using Beginning of Day (BOD) margin parameters rather than margin rates fluctuating with the underlying security price during the day. This change was effective from May 02, 2023. There was no change to the method of calculating and collecting the client's EOD margin obligation itself — only to which margin rate (BOD vs intraday-fluctuating) is used in the penalty calculation.

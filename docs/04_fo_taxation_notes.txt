@@ -1,0 +1,28 @@
+TAXATION OF FUTURES & OPTIONS (F&O) TRADING INCOME IN INDIA — REFERENCE NOTES
+
+1. CLASSIFICATION OF F&O INCOME
+Under Section 43(5) of the Income Tax Act, 1961, trading in derivatives (futures and options) on a recognized stock exchange is explicitly excluded from the definition of "speculative transaction." As a result, profit or loss from F&O trading is classified as NON-SPECULATIVE BUSINESS INCOME, reported under the head "Profits and Gains of Business or Profession" (PGBP) — not as capital gains, and not as speculative income.
+
+This is different from intraday trading in equity shares (buying and selling the same stock within a day without taking delivery), which IS classified as speculative business income under Section 43(5), since it does not fall under the derivatives exclusion.
+
+2. WHICH ITR FORM TO USE
+Since F&O income is business income, individuals must file using ITR-3 (for regular business income computation) or ITR-4 under the presumptive taxation scheme (Section 44AD), if eligible and opted for. ITR-1 or ITR-2, which are used for salary/capital-gains-only filers, are not appropriate for someone with F&O trading activity.
+
+3. TAX RATE
+F&O business income is added to the taxpayer's total income from all sources and taxed at the applicable slab rate for that individual — there is no separate flat tax rate for F&O income, unlike, say, short-term or long-term capital gains on equity, which have their own specified rates.
+
+4. LOSS SET-OFF RULES
+- Non-speculative business losses (which includes F&O losses) can be set off against income from any other head in the same financial year EXCEPT salary income. This includes house property income, other business income, capital gains, and income from other sources.
+- Unabsorbed non-speculative business losses can be carried forward for up to 8 assessment years and set off against non-speculative business income in those future years.
+- This is more favorable than speculative business losses (e.g., equity intraday losses), which can only be set off against other speculative business income, and can only be carried forward for 4 years.
+
+5. ALLOWABLE EXPENSES
+Because F&O income is treated as business income, the taxpayer can claim legitimate business expenses incurred in earning that income — for example, brokerage, internet/data charges, subscription to trading tools or research services, a reasonable portion of rent if trading from a dedicated space, and depreciation on equipment used for trading (e.g., computer/laptop).
+
+6. CALCULATING "TURNOVER" FOR F&O (IMPORTANT — DIFFERENT FROM TRADE VALUE)
+For tax purposes, "turnover" in F&O trading is NOT the total value of contracts bought and sold. Per the ICAI Guidance Note on Tax Audit (relied upon since the Income Tax Act itself does not define turnover for derivatives), turnover is computed as:
+- The absolute sum of all positive and negative differences (profit and loss) from each individual trade settled during the year, PLUS
+- Premium received on sale of options (this is added to turnover regardless of whether the option was exercised), PLUS
+- The difference on exercised/expired options where there is a difference between the strike price and settlement price.
+
+In short: turnover is based on absolute profit/loss per trade, not the notional or contract value of the positions themselves. This is why F&O turnover can be a relatively small number compared to the actual capital deployed or the notional value of contracts traded, and is a common point of confusion for traders estimating their own tax-audit exposure.
