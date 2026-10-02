@@ -3,9 +3,22 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_groq import ChatGroq
+
+from huggingface_hub import InferenceClient
+from langchain_core.embeddings import Embeddings
+
+class LightweightHFEmbeddings(Embeddings):
+    def __init__(self, model_name, hf_token):
+        self.client = InferenceClient(model=model_name, token=hf_token)
+
+    def embed_query(self, text):
+        result = self.client.feature_extraction(text)
+        return result.mean(axis=0).tolist() if result.ndim > 1 else result.tolist()
+
+    def embed_documents(self, texts):
+        return [self.embed_query(t) for t in texts]
 
 load_dotenv()
 
@@ -18,7 +31,10 @@ llm = ChatGroq(
     temperature=0.1,
 )
 
-embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+embeddings = LightweightHFEmbeddings(
+    model_name="sentence-transformers/all-MiniLM-L6-v2",
+    hf_token=os.getenv("HF_TOKEN"),
+)
 vectorstore = FAISS.load_local(
     str(INDEX_DIR), embeddings, allow_dangerous_deserialization=True
 )

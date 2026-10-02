@@ -1,6 +1,6 @@
 langchain
 langchain-community
-sentence-transformers
+huggingface_hub
 faiss-cpu
 pypdf
 langchain-huggingface
