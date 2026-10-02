@@ -1,0 +1,135 @@
+body {
+  background-color: #0f1117;
+  color: #e5e5e5;
+  font-family: system-ui, sans-serif;
+  margin: 0;
+}
+
+.container {
+  max-width: 900px;   /* was 700px */
+  margin: 0 auto;
+  padding: 32px 24px;  /* was 24px 16px */
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+h1 {
+  font-size: 2rem;   /* was 1.4rem */
+  margin-bottom: 24px;
+}
+
+.chat-window {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;          /* was 8px */
+  color: #999;
+  font-size: 1.1rem;  /* new */
+}
+
+.empty-state button {
+  background: #1a1d26;
+  border: 1px solid #333;
+  color: #ccc;
+  padding: 16px 20px;  /* was 8px 12px */
+  border-radius: 10px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 1.05rem;  /* new */
+}
+
+.message-pair {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.user-bubble {
+  align-self: flex-end;
+  background: #2563eb;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 12px;
+  max-width: 80%;
+}
+
+.assistant-bubble {
+  align-self: flex-start;
+  background: #1a1d26;
+  border: 1px solid #2a2d36;
+  padding: 18px 20px;      /* was 10px 14px — more breathing room */
+  border-radius: 14px;
+  max-width: 85%;
+  line-height: 1.6;        /* new — spaces out the lines of text */
+}
+
+.assistant-bubble.loading {
+  color: #888;
+  font-style: italic;
+}
+
+.sources {
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: #999;
+  border-top: 1px solid #2a2d36;
+  padding-top: 8px;
+}
+
+.sources ul {
+  margin: 4px 0 0 0;
+  padding-left: 18px;
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.input-row input {
+  flex: 1;
+  padding: 14px 16px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background: #1a1d26;
+  color: white;
+  font-size: 1.05rem;
+}
+
+.input-row button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.05rem;
+}
+
+.input-row button:disabled {
+  background: #444;
+  cursor: not-allowed;
+}
+
+.user-bubble, .assistant-bubble {
+  font-size: 1.05rem;
+}
+
+.bubble-label {
+  font-size: 0.75rem;
+  color: #6b8af5;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
