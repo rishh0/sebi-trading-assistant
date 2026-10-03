@@ -180,15 +180,6 @@ setMessages((prev) => {
     <div className="container">
       <h1>SEBI Trading Compliance Assistant</h1>
 
-      {uploadedFileName && (
-      <div className="active-document">
-        <span>📄 Using: <strong>{uploadedFileName}</strong></span>
-        <button onClick={clearUploadedDocument} className="clear-doc-btn">
-          Clear
-        </button>
-      </div>
-    )}
-
       <div className="chat-window">
         {messages.length === 0 && (
           <div className="empty-state">
@@ -229,32 +220,42 @@ setMessages((prev) => {
         <div ref={chatEndRef} />
       </div>
 
-      <div className="input-row">
-      <div className="input-wrapper">
-        <label className="attach-icon-btn" title="Upload a PDF">
-          +
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={handleFileUpload}
-            disabled={uploading}
-            style={{ display: "none" }}
-          />
-        </label>
+      <div className="input-area">
+        {uploadedFileName && (
+          <div className="active-document-chip">
+            <span className="chip-text">📄 {uploadedFileName}</span>
+            <button onClick={clearUploadedDocument} className="clear-doc-btn" aria-label="Remove document">
+              ✕
+            </button>
+          </div>
+        )}
 
-        <input
-          className="main-input"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleAsk()}
-          placeholder="Ask a question about SEBI rules or F&O taxation..."
-        />
+        <div className="input-row">
+          <div className="input-wrapper">
+            <label className="attach-icon-btn" title="Upload a PDF">
+              {uploading ? "…" : "+"}
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={handleFileUpload}
+                disabled={uploading}
+                style={{ display: "none" }}
+              />
+            </label>
+
+            <input
+              className="main-input"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleAsk()}
+              placeholder="Ask a question about SEBI rules or F&O taxation..."
+            />
+          </div>
+          <button onClick={handleAsk} disabled={loading}>
+            {loading ? "..." : "Ask"}
+          </button>
+        </div>
       </div>
-
-  <button onClick={handleAsk} disabled={loading}>
-    {loading ? "..." : "Ask"}
-  </button>
-</div>
 
       {showScrollButton && (
         <button className="scroll-fab" onClick={handleScrollButtonClick}>

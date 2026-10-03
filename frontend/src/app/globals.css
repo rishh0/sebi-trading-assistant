@@ -90,14 +90,48 @@ h1 {
   padding-left: 18px;
 }
 
-.input-row {
-  display: flex;
-  gap: 8px;
+.input-area {
   position: sticky;
   bottom: 0;
   background: #0f1117;
-  padding: 16px 0;
+  padding: 10px 0 16px 0;
   z-index: 10;
+}
+
+.active-document-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #14261a;
+  border: 1px solid #2a4a35;
+  color: #9fd6b0;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+  max-width: 100%;
+}
+
+.chip-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clear-doc-btn {
+  background: transparent;
+  border: none;
+  color: #9fd6b0;
+  cursor: pointer;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  padding: 0 4px;
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
   align-items: center;
 }
 
