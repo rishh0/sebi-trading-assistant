@@ -6,12 +6,12 @@ body {
 }
 
 .container {
-  max-width: 900px;   /* was 700px */
+  max-width: 900px;
   margin: 0 auto;
-  padding: 32px 24px;  /* was 24px 16px */
+  padding: 32px 24px;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   box-sizing: border-box;
 }
 
@@ -22,7 +22,6 @@ h1 {
 
 .chat-window {
   flex: 1;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -133,3 +132,115 @@ h1 {
   letter-spacing: 0.05em;
   margin-bottom: 8px;
 }
+
+.markdown-body p {
+  margin: 0 0 12px 0;
+}
+
+.markdown-body p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body strong {
+  color: #e8ecf5;
+  font-weight: 600;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  margin: 8px 0 12px 0;
+  padding-left: 22px;
+}
+
+.markdown-body li {
+  margin-bottom: 6px;
+}
+
+.markdown-body li:last-child {
+  margin-bottom: 0;
+}
+
+.sources-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.source-item {
+  background: #14161d;
+  border: 1px solid #2a2d36;
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.source-item summary {
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #9db3f0;
+  list-style: none;
+}
+
+.source-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.source-item summary::before {
+  content: "▸ ";
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.source-item[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.source-excerpt {
+  margin: 10px 0 0 0;
+  padding-top: 10px;
+  border-top: 1px solid #2a2d36;
+  font-size: 0.82rem;
+  color: #aab0c0;
+  line-height: 1.5;
+}
+
+.upload-section {
+  margin-bottom: 20px;
+}
+
+.upload-btn {
+  display: inline-block;
+  background: #1a1d26;
+  border: 1px dashed #3a3d46;
+  color: #9db3f0;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.upload-btn:hover {
+  border-color: #6b8af5;
+}
+
+.active-document {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #14261a;
+  border: 1px solid #2a4a35;
+  color: #9fd6b0;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.clear-doc-btn {
+  background: transparent;
+  border: 1px solid #3a3d46;
+  color: #ccc;
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+} 

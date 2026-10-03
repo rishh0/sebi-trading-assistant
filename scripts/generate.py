@@ -27,7 +27,7 @@ INDEX_DIR = Path("data/faiss_index")
 llm = ChatGroq(
     model="openai/gpt-oss-20b",
     api_key=os.getenv("GROQ_API_KEY"),
-    max_tokens=512,
+    max_tokens=1024,
     temperature=0.1,
 )
 
@@ -39,19 +39,7 @@ vectorstore = FAISS.load_local(
     str(INDEX_DIR), embeddings, allow_dangerous_deserialization=True
 )
 
-def retrieve_chunks(query, k=5):
-    results = vectorstore.similarity_search(query, k=k)
-    return results
-
-def generate_answer(question):
-    chunks = retrieve_chunks(question)
-
-    context_text = ""
-    for chunk in chunks:
-        source = chunk.metadata.get("source", "unknown")
-        context_text += f"[Source: {source}]\n{chunk.page_content}\n\n"
-
-    system_prompt = """You are a compliance assistant that answers questions about Indian securities trading regulations and taxation, using ONLY the context provided below.
+SYSTEM_PROMPT_TEMPLATE = """You are a compliance assistant that answers questions about Indian securities trading regulations and taxation, using ONLY the context provided below.
 
 Rules:
 - Answer only using the information in the context. Do not use outside knowledge.
@@ -60,14 +48,67 @@ Rules:
 - Keep your answer concise and direct.
 
 Context:
-""" + context_text
-    
+{context}"""
+
+
+def retrieve_chunks(query, k=5):
+    results = vectorstore.similarity_search(query, k=k)
+    return results
+
+
+def _build_context(chunks):
+    context_text = ""
+    for chunk in chunks:
+        source = chunk.metadata.get("source", "unknown")
+        context_text += f"[Source: {source}]\n{chunk.page_content}\n\n"
+    return context_text
+
+
+def generate_answer(question, custom_vectorstore=None):
+    if custom_vectorstore:
+        chunks = custom_vectorstore.similarity_search(question, k=5)
+    else:
+        chunks = retrieve_chunks(question)
+
+    context_text = _build_context(chunks)
+    system_prompt = SYSTEM_PROMPT_TEMPLATE.format(context=context_text)
+
     response = llm.invoke([
         ("system", system_prompt),
         ("human", question),
     ])
 
     return response.content, chunks
+
+
+def generate_answer_stream(question, custom_vectorstore=None):
+    if custom_vectorstore:
+        chunks = custom_vectorstore.similarity_search(question, k=5)
+    else:
+        chunks = retrieve_chunks(question)
+
+    seen = set()
+    source_details = []
+    for chunk in chunks:
+        name = chunk.metadata.get("source", "unknown")
+        if name not in seen:
+            seen.add(name)
+            source_details.append({
+                "source": name,
+                "excerpt": chunk.page_content[:400],
+            })
+
+    import json
+    yield "::SOURCES::" + json.dumps(source_details) + "::END_SOURCES::"
+
+    context_text = _build_context(chunks)
+    system_prompt = SYSTEM_PROMPT_TEMPLATE.format(context=context_text)
+
+    for token in llm.stream([
+        ("system", system_prompt),
+        ("human", question),
+    ]):
+        yield token.content
 
 
 if __name__ == "__main__":
