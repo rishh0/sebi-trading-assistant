@@ -13,11 +13,12 @@ Indian retail traders need to navigate margin rules, F&O taxation treatment, STT
 
 ## Architecture
 
+
 - **Frontend:** Next.js, deployed on Vercel
 - **Backend:** FastAPI, deployed on Render
 - **Embeddings:** `sentence-transformers/all-MiniLM-L6-v2`, called via Hugging Face's Inference API in production (kept local-only for the one-time document ingestion step)
-- **Vector store:** FAISS (local index, committed to the repo)
-- **LLM:** Llama 3.3 70B via Groq, through LangChain's chat-model interface
+- **Vector store:** FAISS (default corpus index committed to the repo; per-session indexes for uploaded documents held in memory)
+- **LLM:** Llama 3.3 70B via Groq, through LangChain's chat-model interface, streamed token-by-token
 - **Orchestration:** LangChain (document loading, chunking, retrieval, prompt construction)
 
 ## Key design decisions
@@ -25,6 +26,7 @@ Indian retail traders need to navigate margin rules, F&O taxation treatment, STT
 - **Guardrail-first prompting:** the system prompt explicitly instructs the model to answer only from retrieved context and to decline when the context is insufficient, rather than guessing. This was deliberately tested (see Evaluation below) against both thin-context and fully out-of-scope questions.
 - **Source attribution:** every answer is returned alongside the specific document(s) it was grounded in, so a user can verify the answer rather than trust it blindly.
 - **Scoped corpus as a deliberate MVP decision:** the knowledge base currently covers 7 documents (SEBI peak margin circulars, F&O taxation rules, tax audit thresholds, STT rates) rather than the full regulatory corpus. The retrieval/generation pipeline is corpus-agnostic and would scale to a larger document set without architectural changes — this scope was chosen to validate the approach end-to-end rather than to be comprehensive.
+- **Session-based document upload (replace mode):** a user can upload their own PDF and ask questions about it directly. Rather than merging the uploaded document into the default corpus, the system switches retrieval to search *only* the uploaded document for the duration of that session — a deliberate choice for predictability: the user always knows exactly what the assistant is drawing from. Session state (the uploaded document's vector index) is held in memory on the backend, keyed by a per-browser-session ID.
 
 ## Evaluation
 
@@ -45,6 +47,8 @@ Full question set and results: [`eval/eval_questions.json`](./eval/eval_question
 - Document corpus is intentionally scoped to 7 documents (see Key design decisions)
 - Out-of-scope questions all currently return the same decline message rather than a reason-specific one (e.g. "outside domain" vs. "retrieved but insufficient detail") — a natural next improvement
 - No conversation memory — each question is answered independently
+- Uploaded documents are stored in-memory per session and are not persisted — they're lost on a backend restart or redeploy. A production version would use a proper per-user storage layer (e.g., Redis or a database-backed vector store) instead.
+- Responses are streamed token-by-token for a faster perceived response time, but the frontend also paces the visual reveal independently of network speed, since Groq's inference speed can otherwise make the streaming effect imperceptible for short answers.
 
 ## Running locally
 
