@@ -17,7 +17,6 @@ export default function Home() {
   const [uploadError, setUploadError] = useState(null);
 
   const [showScrollButton, setShowScrollButton] = useState(false);
-  const [atTop, setAtTop] = useState(true);
 
   const chatEndRef = useRef(null);
 
