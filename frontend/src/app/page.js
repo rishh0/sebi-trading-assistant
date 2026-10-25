@@ -6,6 +6,8 @@ import { useState, useRef, useEffect } from "react";
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // keep in sync with app.py
 const MAX_QUESTION_CHARS = 1000; // keep in sync with app.py
+const MAX_HISTORY_TURNS = 3; // previous Q&A pairs sent for follow-up questions
+const MAX_HISTORY_ANSWER_CHARS = 1500;
 const WAKE_BANNER_DELAY_MS = 1500; // only show the banner if the server is actually asleep
 
 export default function Home() {
@@ -85,6 +87,15 @@ export default function Home() {
     setLoading(true);
     const currentQuestion = question;
     setQuestion("");
+
+    // Recent completed turns, so follow-ups like "what about options?" make sense
+    const history = messages
+      .filter((m) => !m.error && !m.streaming && m.answer)
+      .slice(-MAX_HISTORY_TURNS)
+      .map((m) => ({
+        question: m.question,
+        answer: m.answer.slice(0, MAX_HISTORY_ANSWER_CHARS),
+      }));
   
     setMessages((prev) => [
       ...prev,
@@ -95,7 +106,7 @@ export default function Home() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/query-stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: currentQuestion, session_id: sessionId }),
+        body: JSON.stringify({ question: currentQuestion, session_id: sessionId, history }),
       });
 
       if (res.status === 410) {
@@ -234,6 +245,11 @@ setMessages((prev) => {
     }
   }
   
+  function startNewChat() {
+    setMessages([]);
+    setQuestion("");
+  }
+
   function clearUploadedDocument() {
     setSessionId(null);
     setUploadedFileName(null);
@@ -241,7 +257,14 @@ setMessages((prev) => {
 
   return (
     <div className="container">
-      <h1>SEBI Trading Compliance Assistant</h1>
+      <div className="header-row">
+        <h1>SEBI Trading Compliance Assistant</h1>
+        {messages.length > 0 && (
+          <button className="new-chat-btn" onClick={startNewChat} disabled={loading}>
+            New chat
+          </button>
+        )}
+      </div>
 
       {serverStatus === "waking" && (
         <div className="server-banner" role="status">

@@ -63,9 +63,19 @@ app.add_middleware(
     allow_headers=["Content-Type"],
 )
 
+class Turn(BaseModel):
+    question: str = Field(max_length=MAX_QUESTION_CHARS)
+    answer: str = Field(max_length=4000)
+
+
 class QueryRequest(BaseModel):
     question: str = Field(min_length=1, max_length=MAX_QUESTION_CHARS)
     session_id: str | None = None
+    # Previous turns for follow-up questions; only the last few are used
+    history: list[Turn] = Field(default_factory=list, max_length=10)
+
+    def history_dicts(self):
+        return [turn.model_dump() for turn in self.history]
 
 
 def _enforce(limiter, key, message):
@@ -139,7 +149,9 @@ def store_session_vectorstore(session_id, vectorstore):
 @app.post("/query", dependencies=[Depends(limit_queries)])
 def query_endpoint(request: QueryRequest):
     custom_vs = get_session_vectorstore(request.session_id)
-    answer, sources = generate_answer(request.question, custom_vectorstore=custom_vs)
+    answer, sources = generate_answer(
+        request.question, custom_vectorstore=custom_vs, history=request.history_dicts()
+    )
 
     return {
         "answer": answer,
@@ -151,7 +163,9 @@ def query_stream_endpoint(request: QueryRequest):
     custom_vs = get_session_vectorstore(request.session_id)
 
     def event_generator():
-        for piece in generate_answer_stream(request.question, custom_vectorstore=custom_vs):
+        for piece in generate_answer_stream(
+            request.question, custom_vectorstore=custom_vs, history=request.history_dicts()
+        ):
             yield piece
 
     return StreamingResponse(event_generator(), media_type="text/plain")

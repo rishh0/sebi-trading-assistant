@@ -106,3 +106,59 @@ def test_chunk_documents_respects_size_and_keeps_metadata():
     assert len(chunks) > 1
     assert all(len(c.page_content) <= CHUNK_SIZE for c in chunks)
     assert all(c.metadata["source"] == "big.txt" for c in chunks)
+
+
+# --- Conversation memory ---
+
+HISTORY = [
+    {"question": "How is STT charged on futures?", "answer": "On the sell side."},
+]
+
+
+@pytest.fixture
+def fake_condense(mocker):
+    llm = FakeListChatModel(responses=["How is STT charged on options?"])
+    mocker.patch.object(generate, "get_condense_llm", return_value=llm)
+    return llm
+
+
+def test_condense_without_history_returns_question_unchanged(mocker):
+    condense_llm = mocker.patch.object(generate, "get_condense_llm")
+    assert generate.condense_question("What is STT?", []) == "What is STT?"
+    condense_llm.assert_not_called()
+
+
+def test_condense_rewrites_follow_up(fake_condense):
+    assert generate.condense_question("what about options?", HISTORY) == "How is STT charged on options?"
+
+
+def test_condense_falls_back_to_previous_question_on_error(mocker):
+    broken = mocker.MagicMock()
+    broken.invoke.side_effect = RuntimeError("groq down")
+    mocker.patch.object(generate, "get_condense_llm", return_value=broken)
+    assert generate.condense_question("what about options?", HISTORY) == (
+        "How is STT charged on futures? what about options?"
+    )
+
+
+def test_messages_include_recent_history_in_order():
+    history = [{"question": f"q{i}", "answer": f"a{i}"} for i in range(5)]
+    messages = generate._build_messages("now", CHUNKS, history)
+    roles_and_text = [(role, text) for role, text in messages[1:]]
+    # Only the last MAX_HISTORY_TURNS turns, oldest first, then the new question
+    assert roles_and_text == [
+        ("human", "q2"), ("ai", "a2"),
+        ("human", "q3"), ("ai", "a3"),
+        ("human", "q4"), ("ai", "a4"),
+        ("human", "now"),
+    ]
+
+
+def test_follow_up_retrieves_with_standalone_question(fake_llm, fake_corpus, fake_condense):
+    generate.generate_answer("what about options?", history=HISTORY)
+    assert fake_corpus.queries == [("How is STT charged on options?", 5)]
+
+
+def test_stream_follow_up_retrieves_with_standalone_question(fake_llm, fake_corpus, fake_condense):
+    list(generate.generate_answer_stream("what about options?", history=HISTORY))
+    assert fake_corpus.queries == [("How is STT charged on options?", 5)]

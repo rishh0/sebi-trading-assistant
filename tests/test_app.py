@@ -104,3 +104,17 @@ def test_session_cap_evicts_least_recently_used(monkeypatch):
     app_module.store_session_vectorstore("c", "vs-c")
 
     assert set(app_module.session_vectorstores) == {"a", "c"}
+
+
+def test_query_passes_history_to_generator(mocker):
+    gen = mocker.patch.object(app_module, "generate_answer", return_value=("ok", []))
+    history = [{"question": "How is STT charged on futures?", "answer": "On the sell side."}]
+    res = client.post("/query", json={"question": "what about options?", "history": history})
+    assert res.status_code == 200
+    assert gen.call_args.kwargs["history"] == history
+
+
+def test_query_rejects_oversized_history(mocker):
+    mocker.patch.object(app_module, "generate_answer", return_value=("ok", []))
+    history = [{"question": "q", "answer": "a"}] * 11
+    assert client.post("/query", json={"question": "hi", "history": history}).status_code == 422
