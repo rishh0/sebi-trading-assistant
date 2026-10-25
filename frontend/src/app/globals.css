@@ -98,6 +98,22 @@ h1 {
   z-index: 10;
 }
 
+.server-banner {
+  background: #1a1d26;
+  border: 1px solid #2a3a5a;
+  color: #9fb8e0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
+.server-banner-error {
+  background: #1f1416;
+  border-color: #5a2a2a;
+  color: #e08080;
+}
+
 .upload-error {
   display: flex;
   align-items: center;

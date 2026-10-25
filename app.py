@@ -1,8 +1,8 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 import logging
 import os
@@ -14,6 +14,7 @@ from langchain_community.vectorstores import FAISS
 from pypdf.errors import PyPdfError
 
 from scripts.document_processor import process_uploaded_pdf
+from scripts.rate_limit import RateLimiter, client_ip
 from fastapi.responses import StreamingResponse
 
 from scripts.generate import (
@@ -41,6 +42,14 @@ MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 SESSION_TTL_SECONDS = 60 * 60        # drop uploaded docs unused for 1 hour
 MAX_SESSIONS = 50                    # hard cap so memory can't grow unbounded
 
+MAX_QUESTION_CHARS = 1000
+
+# Protect the Groq free-tier quota: a per-IP limit for fairness, plus a global cap
+# that still holds if someone spoofs X-Forwarded-For to dodge the per-IP limit.
+query_limiter_per_ip = RateLimiter(limit=10, window_seconds=60)
+query_limiter_global = RateLimiter(limit=60, window_seconds=60)
+upload_limiter_per_ip = RateLimiter(limit=5, window_seconds=60 * 10)
+
 session_vectorstores = {}  # session_id -> {"vectorstore": FAISS, "last_used": float}
 sessions_lock = threading.Lock()
 
@@ -50,13 +59,42 @@ app.add_middleware(
         "http://localhost:3000",
         "https://frontend-omega-six-90.vercel.app",
     ],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
 )
 
 class QueryRequest(BaseModel):
-    question: str
+    question: str = Field(min_length=1, max_length=MAX_QUESTION_CHARS)
     session_id: str | None = None
+
+
+def _enforce(limiter, key, message):
+    retry_after = limiter.check(key)
+    if retry_after is not None:
+        raise HTTPException(
+            status_code=429,
+            detail=message,
+            headers={"Retry-After": str(retry_after)},
+        )
+
+
+def limit_queries(request: Request):
+    _enforce(query_limiter_per_ip, client_ip(request),
+             "You're asking questions too quickly. Please wait a moment and try again.")
+    _enforce(query_limiter_global, "global",
+             "The assistant is busy right now. Please try again in a minute.")
+
+
+def limit_uploads(request: Request):
+    _enforce(upload_limiter_per_ip, client_ip(request),
+             "Too many uploads. Please wait a few minutes and try again.")
+
+
+@app.get("/health")
+def health():
+    # Deliberately cheap: the frontend calls this on page load to wake the
+    # free-tier server before the user asks their first question.
+    return {"status": "ok"}
 
 
 def _evict_expired_sessions():
@@ -98,7 +136,7 @@ def store_session_vectorstore(session_id, vectorstore):
         session_vectorstores[session_id] = {"vectorstore": vectorstore, "last_used": time.time()}
 
 
-@app.post("/query")
+@app.post("/query", dependencies=[Depends(limit_queries)])
 def query_endpoint(request: QueryRequest):
     custom_vs = get_session_vectorstore(request.session_id)
     answer, sources = generate_answer(request.question, custom_vectorstore=custom_vs)
@@ -108,7 +146,7 @@ def query_endpoint(request: QueryRequest):
         "sources": format_sources(sources),
     }
 
-@app.post("/query-stream")
+@app.post("/query-stream", dependencies=[Depends(limit_queries)])
 def query_stream_endpoint(request: QueryRequest):
     custom_vs = get_session_vectorstore(request.session_id)
 
@@ -120,7 +158,7 @@ def query_stream_endpoint(request: QueryRequest):
 
 # Plain `def` (not async) so the blocking PDF parsing and embedding calls run in
 # FastAPI's threadpool instead of stalling the event loop for every other request.
-@app.post("/upload")
+@app.post("/upload", dependencies=[Depends(limit_uploads)])
 def upload_document(file: UploadFile = File(...)):
     filename = os.path.basename(file.filename or "")
     if not filename.lower().endswith(".pdf"):
