@@ -1,10 +1,10 @@
 langchain
 langchain-community
-huggingface_hub
+fastembed
 faiss-cpu
 pypdf
-langchain-huggingface
 langchain-groq
+python-dotenv
 
 fastapi
 uvicorn

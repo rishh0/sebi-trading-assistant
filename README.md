@@ -16,9 +16,9 @@ Indian retail traders need to navigate margin rules, F&O taxation treatment, STT
 
 - **Frontend:** Next.js, deployed on Vercel
 - **Backend:** FastAPI, deployed on Render
-- **Embeddings:** `sentence-transformers/all-MiniLM-L6-v2`, called via Hugging Face's Inference API in production (kept local-only for the one-time document ingestion step)
+- **Embeddings:** `sentence-transformers/all-MiniLM-L6-v2`, run locally on the backend via [fastembed](https://github.com/qdrant/fastembed) (ONNX Runtime, no PyTorch) — free, no API key, and small enough for a 512 MB free-tier server. The same implementation (`scripts/embeddings.py`) is used for ingestion and querying, so index and query vectors always match
 - **Vector store:** FAISS (default corpus index committed to the repo; per-session indexes for uploaded documents held in memory)
-- **LLM:** Llama 3.3 70B via Groq, through LangChain's chat-model interface, streamed token-by-token
+- **LLM:** GPT-OSS 20B (`openai/gpt-oss-20b`) via Groq, through LangChain's chat-model interface, streamed token-by-token
 - **Orchestration:** LangChain (document loading, chunking, retrieval, prompt construction)
 
 ## Key design decisions
@@ -55,7 +55,7 @@ Full question set and results: [`eval/eval_questions.json`](./eval/eval_question
 **Backend:**
 ```bash
 pip install -r requirements.txt
-# add GROQ_API_KEY and HF_TOKEN to a .env file
+# add GROQ_API_KEY to a .env file
 python scripts/ingest.py   # one-time: build the vector index from docs/
 uvicorn app:app --reload
 ```

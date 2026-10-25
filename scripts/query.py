@@ -9,8 +9,10 @@ Run with: python scripts/query.py "what is the peak margin penalty"
 import sys
 from pathlib import Path
 
-from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
+
+sys.path.append(str(Path(__file__).parent.parent))  # allow `python scripts/<name>.py`
+from scripts.embeddings import LocalEmbeddings
 
 INDEX_DIR = Path("data/faiss_index")
 
@@ -26,7 +28,7 @@ def main():
         print(f"No index found at {INDEX_DIR}/. Run scripts/ingest.py first.")
         return
 
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    embeddings = LocalEmbeddings()
     vectorstore = FAISS.load_local(
         str(INDEX_DIR), embeddings, allow_dangerous_deserialization=True
     )

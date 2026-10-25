@@ -4,6 +4,8 @@ import ReactMarkdown from "react-markdown";
 
 import { useState, useRef, useEffect } from "react";
 
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // keep in sync with app.py
+
 export default function Home() {
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState([]);
@@ -12,6 +14,7 @@ export default function Home() {
   const [sessionId, setSessionId] = useState(null);
   const [uploadedFileName, setUploadedFileName] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
 
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [atTop, setAtTop] = useState(true);
@@ -67,6 +70,14 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: currentQuestion, session_id: sessionId }),
       });
+
+      if (res.status === 410) {
+        // The uploaded document's session expired or the backend restarted
+        const data = await res.json().catch(() => ({}));
+        clearUploadedDocument();
+        setUploadError(data.detail || "Your uploaded document has expired. Please upload it again.");
+        throw new Error("Session expired");
+      }
 
       if (!res.ok) {
         throw new Error(`Server responded with status ${res.status}`);
@@ -148,24 +159,42 @@ setMessages((prev) => {
 
   async function handleFileUpload(e) {
     const file = e.target.files[0];
+    e.target.value = ""; // allow re-selecting the same file after an error
     if (!file) return;
-  
+
+    setUploadError(null);
+
+    if (!file.name.toLowerCase().endsWith(".pdf")) {
+      setUploadError("Only PDF files are supported.");
+      return;
+    }
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setUploadError("File is too large. The limit is 10 MB.");
+      return;
+    }
+
     setUploading(true);
-  
+
     const formData = new FormData();
     formData.append("file", file);
-  
+
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
         method: "POST",
         body: formData,
       });
-      const data = await res.json();
-  
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setUploadError(data.detail || "Upload failed. Please try again.");
+        return;
+      }
+
       setSessionId(data.session_id);
       setUploadedFileName(data.filename);
     } catch (err) {
       console.error(err);
+      setUploadError("Couldn't reach the server. Please try again in a moment.");
     } finally {
       setUploading(false);
     }
@@ -221,6 +250,15 @@ setMessages((prev) => {
       </div>
 
       <div className="input-area">
+        {uploadError && (
+          <div className="upload-error" role="alert">
+            <span>{uploadError}</span>
+            <button onClick={() => setUploadError(null)} className="clear-doc-btn" aria-label="Dismiss error">
+              ✕
+            </button>
+          </div>
+        )}
+
         {uploadedFileName && (
           <div className="active-document-chip">
             <span className="chip-text">📄 {uploadedFileName}</span>

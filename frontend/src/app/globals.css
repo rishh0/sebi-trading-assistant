@@ -98,6 +98,21 @@ h1 {
   z-index: 10;
 }
 
+.upload-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #1f1416;
+  border: 1px solid #5a2a2a;
+  color: #e08080;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+  max-width: 100%;
+}
+
 .active-document-chip {
   display: flex;
   align-items: center;
