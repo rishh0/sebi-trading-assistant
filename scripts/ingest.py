@@ -13,10 +13,10 @@ import sys
 from pathlib import Path
 
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 
 sys.path.append(str(Path(__file__).parent.parent))  # allow `python scripts/<name>.py`
+from scripts.document_processor import chunk_documents
 from scripts.embeddings import LocalEmbeddings
 
 DOCS_DIR = Path("docs")
@@ -45,17 +45,6 @@ def load_documents():
         documents.extend(docs)
 
     return documents
-
-
-def chunk_documents(documents):
-    """Split documents into overlapping chunks for better retrieval."""
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,       # characters per chunk
-        chunk_overlap=150,     # overlap so context isn't lost at boundaries
-        separators=["\n\n", "\n", ". ", " ", ""],  # prefer breaking on paragraphs/sentences
-    )
-    chunks = splitter.split_documents(documents)
-    return chunks
 
 
 def main():

@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -12,13 +14,27 @@ from langchain_community.vectorstores import FAISS
 from pypdf.errors import PyPdfError
 
 from scripts.document_processor import process_uploaded_pdf
-from scripts.generate import embeddings  # reuse the same embeddings instance
-
 from fastapi.responses import StreamingResponse
 
-from scripts.generate import generate_answer, generate_answer_stream
+from scripts.generate import (
+    format_sources,
+    generate_answer,
+    generate_answer_stream,
+    get_embeddings,
+    get_llm,
+    get_vectorstore,
+)
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app):
+    # Load the model and index at startup so the first user request isn't slowed down
+    get_llm()
+    get_vectorstore()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 logger = logging.getLogger(__name__)
 
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
@@ -87,20 +103,9 @@ def query_endpoint(request: QueryRequest):
     custom_vs = get_session_vectorstore(request.session_id)
     answer, sources = generate_answer(request.question, custom_vectorstore=custom_vs)
 
-    seen = set()
-    source_details = []
-    for chunk in sources:
-        name = chunk.metadata.get("source", "unknown")
-        if name not in seen:
-            seen.add(name)
-            source_details.append({
-                "source": name,
-                "excerpt": chunk.page_content[:400],
-            })
-
     return {
         "answer": answer,
-        "sources": source_details,
+        "sources": format_sources(sources),
     }
 
 @app.post("/query-stream")
@@ -145,7 +150,7 @@ def upload_document(file: UploadFile = File(...)):
             )
 
         try:
-            session_vectorstore = FAISS.from_documents(chunks, embeddings)
+            session_vectorstore = FAISS.from_documents(chunks, get_embeddings())
         except Exception:
             logger.exception("Embedding failed for uploaded file %s", filename)
             raise HTTPException(status_code=502, detail="The embedding service is unavailable. Please try again shortly.")

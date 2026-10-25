@@ -1,5 +1,7 @@
+import json
 import os
 import sys
+from functools import lru_cache
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -12,19 +14,7 @@ from scripts.embeddings import LocalEmbeddings
 
 load_dotenv()
 
-INDEX_DIR = Path("data/faiss_index")
-
-llm = ChatGroq(
-    model="openai/gpt-oss-20b",
-    api_key=os.getenv("GROQ_API_KEY"),
-    max_tokens=1024,
-    temperature=0.1,
-)
-
-embeddings = LocalEmbeddings()
-vectorstore = FAISS.load_local(
-    str(INDEX_DIR), embeddings, allow_dangerous_deserialization=True
-)
+INDEX_DIR = Path(__file__).resolve().parent.parent / "data" / "faiss_index"
 
 SYSTEM_PROMPT_TEMPLATE = """You are a compliance assistant that answers questions about Indian securities trading regulations and taxation, using ONLY the context provided below.
 
@@ -38,9 +28,48 @@ Context:
 {context}"""
 
 
-def retrieve_chunks(query, k=5):
-    results = vectorstore.similarity_search(query, k=k)
-    return results
+# The LLM client, embedding model and index are created on first use rather than
+# at import, so importing this module (e.g. in tests) needs no API key or index.
+@lru_cache(maxsize=1)
+def get_llm():
+    return ChatGroq(
+        model="openai/gpt-oss-20b",
+        api_key=os.getenv("GROQ_API_KEY"),
+        max_tokens=1024,
+        temperature=0.1,
+    )
+
+
+@lru_cache(maxsize=1)
+def get_embeddings():
+    return LocalEmbeddings()
+
+
+@lru_cache(maxsize=1)
+def get_vectorstore():
+    return FAISS.load_local(
+        str(INDEX_DIR), get_embeddings(), allow_dangerous_deserialization=True
+    )
+
+
+def retrieve_chunks(query, k=5, custom_vectorstore=None):
+    vectorstore = custom_vectorstore or get_vectorstore()
+    return vectorstore.similarity_search(query, k=k)
+
+
+def format_sources(chunks, excerpt_chars=400):
+    """One entry per source document (first matching chunk wins), in retrieval order."""
+    seen = set()
+    source_details = []
+    for chunk in chunks:
+        name = chunk.metadata.get("source", "unknown")
+        if name not in seen:
+            seen.add(name)
+            source_details.append({
+                "source": name,
+                "excerpt": chunk.page_content[:excerpt_chars],
+            })
+    return source_details
 
 
 def _build_context(chunks):
@@ -51,55 +80,30 @@ def _build_context(chunks):
     return context_text
 
 
-def generate_answer(question, custom_vectorstore=None):
-    if custom_vectorstore:
-        chunks = custom_vectorstore.similarity_search(question, k=5)
-    else:
-        chunks = retrieve_chunks(question)
-
-    context_text = _build_context(chunks)
-    system_prompt = SYSTEM_PROMPT_TEMPLATE.format(context=context_text)
-
-    response = llm.invoke([
+def _build_messages(question, chunks):
+    system_prompt = SYSTEM_PROMPT_TEMPLATE.format(context=_build_context(chunks))
+    return [
         ("system", system_prompt),
         ("human", question),
-    ])
+    ]
 
+
+def generate_answer(question, custom_vectorstore=None):
+    chunks = retrieve_chunks(question, custom_vectorstore=custom_vectorstore)
+    response = get_llm().invoke(_build_messages(question, chunks))
     return response.content, chunks
 
 
 def generate_answer_stream(question, custom_vectorstore=None):
-    if custom_vectorstore:
-        chunks = custom_vectorstore.similarity_search(question, k=5)
-    else:
-        chunks = retrieve_chunks(question)
+    chunks = retrieve_chunks(question, custom_vectorstore=custom_vectorstore)
 
-    seen = set()
-    source_details = []
-    for chunk in chunks:
-        name = chunk.metadata.get("source", "unknown")
-        if name not in seen:
-            seen.add(name)
-            source_details.append({
-                "source": name,
-                "excerpt": chunk.page_content[:400],
-            })
+    yield "::SOURCES::" + json.dumps(format_sources(chunks)) + "::END_SOURCES::"
 
-    import json
-    yield "::SOURCES::" + json.dumps(source_details) + "::END_SOURCES::"
-
-    context_text = _build_context(chunks)
-    system_prompt = SYSTEM_PROMPT_TEMPLATE.format(context=context_text)
-
-    for token in llm.stream([
-        ("system", system_prompt),
-        ("human", question),
-    ]):
+    for token in get_llm().stream(_build_messages(question, chunks)):
         yield token.content
 
 
 if __name__ == "__main__":
-    import sys
     question = " ".join(sys.argv[1:])
     if not question:
         print('Usage: python scripts/generate.py "your question"')
