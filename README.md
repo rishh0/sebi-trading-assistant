@@ -18,7 +18,7 @@ Indian retail traders need to navigate margin rules, F&O taxation treatment, STT
 - **Backend:** FastAPI, deployed on Render
 - **Embeddings:** `sentence-transformers/all-MiniLM-L6-v2`, called via Hugging Face's Inference API in production (kept local-only for the one-time document ingestion step)
 - **Vector store:** FAISS (default corpus index committed to the repo; per-session indexes for uploaded documents held in memory)
-- **LLM:** Llama 3.3 70B via Groq, through LangChain's chat-model interface, streamed token-by-token
+- **LLM:** GPT-OSS 20B (`openai/gpt-oss-20b`) via Groq, through LangChain's chat-model interface, streamed token-by-token
 - **Orchestration:** LangChain (document loading, chunking, retrieval, prompt construction)
 
 ## Key design decisions
