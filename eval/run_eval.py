@@ -42,3 +42,9 @@ for case in eval_cases:
     print(f"  -> done, saved progress\n")
 
 print(f"\nFinished. {len(results)} results saved to {RESULTS_FILE}")
+from score_eval import score
+
+passed, report = score(results)
+print("\n" + "\n".join(report))
+print("\nEVAL PASSED" if passed else "\nEVAL FAILED")
+sys.exit(0 if passed else 1)

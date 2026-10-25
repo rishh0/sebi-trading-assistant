@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import sys
 from functools import lru_cache
@@ -14,6 +15,8 @@ from scripts.embeddings import LocalEmbeddings
 
 load_dotenv()
 
+logger = logging.getLogger(__name__)
+
 INDEX_DIR = Path(__file__).resolve().parent.parent / "data" / "faiss_index"
 
 SYSTEM_PROMPT_TEMPLATE = """You are a compliance assistant that answers questions about Indian securities trading regulations and taxation, using ONLY the context provided below.
@@ -26,6 +29,30 @@ Rules:
 
 Context:
 {context}"""
+
+# Retrieval distance (squared L2 on normalized embeddings; lower = closer) above
+# which a question is treated as outside the default corpus. Calibrated on the eval
+# set plus extra probes: answerable questions scored <= 1.14, clearly unrelated ones
+# (weather, cricket, laptops, RBI policy...) >= 1.26. Borderline questions below the
+# cutoff still reach the LLM, whose prompt makes it decline when context is thin.
+OUT_OF_SCOPE_DISTANCE = 1.25
+
+OUT_OF_SCOPE_MESSAGE = (
+    "That's outside what I can help with. I answer questions about **SEBI margin rules** "
+    "(peak margin, upfront margin collection), **F&O taxation**, **tax audits under "
+    "Section 44AB**, and **STT**, based on official circulars and tax reference notes. "
+    "Try asking about one of those, or upload your own PDF to ask about it."
+)
+
+# How many previous question/answer pairs are used for follow-up questions
+MAX_HISTORY_TURNS = 3
+
+CONDENSE_PROMPT_TEMPLATE = """Rewrite the user's latest message as a standalone question that can be understood without the conversation. Keep it in the same language and domain; don't answer it. If it is already standalone, return it unchanged. Output only the question.
+
+Conversation:
+{conversation}
+
+Latest message: {question}"""
 
 
 # The LLM client, embedding model and index are created on first use rather than
@@ -41,6 +68,19 @@ def get_llm():
 
 
 @lru_cache(maxsize=1)
+def get_condense_llm():
+    # Rewriting a follow-up is a small task: low reasoning effort keeps it ~0.5s
+    return ChatGroq(
+        model="openai/gpt-oss-20b",
+        api_key=os.getenv("GROQ_API_KEY"),
+        max_tokens=512,
+        temperature=0,
+        reasoning_effort="low",
+        reasoning_format="hidden",
+    )
+
+
+@lru_cache(maxsize=1)
 def get_embeddings():
     return LocalEmbeddings()
 
@@ -52,9 +92,45 @@ def get_vectorstore():
     )
 
 
+def _recent(history):
+    return list(history or [])[-MAX_HISTORY_TURNS:]
+
+
+def condense_question(question, history):
+    """Turn a follow-up like "what about options?" into a standalone question for retrieval."""
+    history = _recent(history)
+    if not history:
+        return question
+
+    conversation = "\n".join(
+        f"User: {turn['question']}\nAssistant: {turn['answer']}" for turn in history
+    )
+    try:
+        response = get_condense_llm().invoke(
+            CONDENSE_PROMPT_TEMPLATE.format(conversation=conversation, question=question)
+        )
+        standalone = response.content.strip()
+    except Exception:
+        logger.exception("Question rewrite failed; falling back to concatenation")
+        standalone = ""
+
+    # Fallback still gives retrieval the topic of the previous question
+    return standalone or f"{history[-1]['question']} {question}"
+
+
 def retrieve_chunks(query, k=5, custom_vectorstore=None):
-    vectorstore = custom_vectorstore or get_vectorstore()
-    return vectorstore.similarity_search(query, k=k)
+    """Returns (chunks, out_of_scope).
+
+    The out-of-scope check only applies to the default corpus: the cutoff was
+    calibrated on it, and an uploaded PDF could be about anything.
+    """
+    if custom_vectorstore is not None:
+        return custom_vectorstore.similarity_search(query, k=k), False
+
+    results = get_vectorstore().similarity_search_with_score(query, k=k)
+    if not results or results[0][1] > OUT_OF_SCOPE_DISTANCE:
+        return [], True
+    return [doc for doc, _ in results], False
 
 
 def format_sources(chunks, excerpt_chars=400):
@@ -80,26 +156,37 @@ def _build_context(chunks):
     return context_text
 
 
-def _build_messages(question, chunks):
+def _build_messages(question, chunks, history=None):
     system_prompt = SYSTEM_PROMPT_TEMPLATE.format(context=_build_context(chunks))
-    return [
-        ("system", system_prompt),
-        ("human", question),
-    ]
+    messages = [("system", system_prompt)]
+    for turn in _recent(history):
+        messages.append(("human", turn["question"]))
+        messages.append(("ai", turn["answer"]))
+    messages.append(("human", question))
+    return messages
 
 
-def generate_answer(question, custom_vectorstore=None):
-    chunks = retrieve_chunks(question, custom_vectorstore=custom_vectorstore)
-    response = get_llm().invoke(_build_messages(question, chunks))
+def generate_answer(question, custom_vectorstore=None, history=None):
+    search_query = condense_question(question, history)
+    chunks, out_of_scope = retrieve_chunks(search_query, custom_vectorstore=custom_vectorstore)
+    if out_of_scope:
+        return OUT_OF_SCOPE_MESSAGE, []
+
+    response = get_llm().invoke(_build_messages(question, chunks, history))
     return response.content, chunks
 
 
-def generate_answer_stream(question, custom_vectorstore=None):
-    chunks = retrieve_chunks(question, custom_vectorstore=custom_vectorstore)
+def generate_answer_stream(question, custom_vectorstore=None, history=None):
+    search_query = condense_question(question, history)
+    chunks, out_of_scope = retrieve_chunks(search_query, custom_vectorstore=custom_vectorstore)
 
     yield "::SOURCES::" + json.dumps(format_sources(chunks)) + "::END_SOURCES::"
 
-    for token in get_llm().stream(_build_messages(question, chunks)):
+    if out_of_scope:
+        yield OUT_OF_SCOPE_MESSAGE
+        return
+
+    for token in get_llm().stream(_build_messages(question, chunks, history)):
         yield token.content
 
 
