@@ -5,3 +5,4 @@ frontend/node_modules/
 frontend/.next/
 frontend/.env.local
 data/fastembed_cache/
+.DS_Store
