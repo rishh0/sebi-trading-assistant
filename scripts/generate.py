@@ -30,6 +30,20 @@ Rules:
 Context:
 {context}"""
 
+# Retrieval distance (squared L2 on normalized embeddings; lower = closer) above
+# which a question is treated as outside the default corpus. Calibrated on the eval
+# set plus extra probes: answerable questions scored <= 1.14, clearly unrelated ones
+# (weather, cricket, laptops, RBI policy...) >= 1.26. Borderline questions below the
+# cutoff still reach the LLM, whose prompt makes it decline when context is thin.
+OUT_OF_SCOPE_DISTANCE = 1.25
+
+OUT_OF_SCOPE_MESSAGE = (
+    "That's outside what I can help with. I answer questions about **SEBI margin rules** "
+    "(peak margin, upfront margin collection), **F&O taxation**, **tax audits under "
+    "Section 44AB**, and **STT**, based on official circulars and tax reference notes. "
+    "Try asking about one of those, or upload your own PDF to ask about it."
+)
+
 # How many previous question/answer pairs are used for follow-up questions
 MAX_HISTORY_TURNS = 3
 
@@ -105,8 +119,18 @@ def condense_question(question, history):
 
 
 def retrieve_chunks(query, k=5, custom_vectorstore=None):
-    vectorstore = custom_vectorstore or get_vectorstore()
-    return vectorstore.similarity_search(query, k=k)
+    """Returns (chunks, out_of_scope).
+
+    The out-of-scope check only applies to the default corpus: the cutoff was
+    calibrated on it, and an uploaded PDF could be about anything.
+    """
+    if custom_vectorstore is not None:
+        return custom_vectorstore.similarity_search(query, k=k), False
+
+    results = get_vectorstore().similarity_search_with_score(query, k=k)
+    if not results or results[0][1] > OUT_OF_SCOPE_DISTANCE:
+        return [], True
+    return [doc for doc, _ in results], False
 
 
 def format_sources(chunks, excerpt_chars=400):
@@ -144,16 +168,23 @@ def _build_messages(question, chunks, history=None):
 
 def generate_answer(question, custom_vectorstore=None, history=None):
     search_query = condense_question(question, history)
-    chunks = retrieve_chunks(search_query, custom_vectorstore=custom_vectorstore)
+    chunks, out_of_scope = retrieve_chunks(search_query, custom_vectorstore=custom_vectorstore)
+    if out_of_scope:
+        return OUT_OF_SCOPE_MESSAGE, []
+
     response = get_llm().invoke(_build_messages(question, chunks, history))
     return response.content, chunks
 
 
 def generate_answer_stream(question, custom_vectorstore=None, history=None):
     search_query = condense_question(question, history)
-    chunks = retrieve_chunks(search_query, custom_vectorstore=custom_vectorstore)
+    chunks, out_of_scope = retrieve_chunks(search_query, custom_vectorstore=custom_vectorstore)
 
     yield "::SOURCES::" + json.dumps(format_sources(chunks)) + "::END_SOURCES::"
+
+    if out_of_scope:
+        yield OUT_OF_SCOPE_MESSAGE
+        return
 
     for token in get_llm().stream(_build_messages(question, chunks, history)):
         yield token.content

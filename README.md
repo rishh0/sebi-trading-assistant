@@ -26,6 +26,8 @@ Indian retail traders need to navigate margin rules, F&O taxation treatment, STT
 - **Guardrail-first prompting:** the system prompt explicitly instructs the model to answer only from retrieved context and to decline when the context is insufficient, rather than guessing. This was deliberately tested (see Evaluation below) against both thin-context and fully out-of-scope questions.
 - **Source attribution:** every answer is returned alongside the specific document(s) it was grounded in, so a user can verify the answer rather than trust it blindly.
 - **Scoped corpus as a deliberate MVP decision:** the knowledge base currently covers 7 documents (SEBI peak margin circulars, F&O taxation rules, tax audit thresholds, STT rates) rather than the full regulatory corpus. The retrieval/generation pipeline is corpus-agnostic and would scale to a larger document set without architectural changes — this scope was chosen to validate the approach end-to-end rather than to be comprehensive.
+- **Two kinds of decline:** a question whose closest match in the corpus is too distant (e.g. weather, stock tips) gets a specific "outside what I cover" reply listing the topics the assistant does cover, without calling the LLM at all. The distance cutoff was calibrated on the eval set: answerable questions scored ≤ 1.14 and clearly unrelated ones ≥ 1.26, so it sits at 1.25. Borderline questions (related topic, but the detail isn't in the documents) still reach the LLM, which replies "I don't have enough information in my documents…". The cutoff only applies to the default corpus, not uploaded PDFs.
+- **Conversation memory for follow-ups:** the last 3 Q&A turns are sent with each question. A follow-up like "what about options?" is first rewritten into a standalone question ("How is STT charged on options?") by a small, low-reasoning LLM call so retrieval finds the right passages; the answer prompt also includes the recent turns.
 - **Session-based document upload (replace mode):** a user can upload their own PDF and ask questions about it directly. Rather than merging the uploaded document into the default corpus, the system switches retrieval to search *only* the uploaded document for the duration of that session — a deliberate choice for predictability: the user always knows exactly what the assistant is drawing from. Session state (the uploaded document's vector index) is held in memory on the backend, keyed by a per-browser-session ID.
 
 ## Evaluation
@@ -45,8 +47,8 @@ Full question set and results: [`eval/eval_questions.json`](./eval/eval_question
 
 - Free-tier backend hosting means a cold-start delay after inactivity (see note above)
 - Document corpus is intentionally scoped to 7 documents (see Key design decisions)
-- Out-of-scope questions all currently return the same decline message rather than a reason-specific one (e.g. "outside domain" vs. "retrieved but insufficient detail") — a natural next improvement
-- No conversation memory — each question is answered independently
+- The out-of-scope distance cutoff is calibrated for the current 7-document corpus and should be re-checked if the corpus changes significantly
+- Conversation memory lives in the browser tab only (last 3 turns); refreshing the page starts a new conversation
 - Uploaded documents are stored in-memory per session and are not persisted — they're lost on a backend restart or redeploy. A production version would use a proper per-user storage layer (e.g., Redis or a database-backed vector store) instead.
 - Responses are streamed token-by-token for a faster perceived response time, but the frontend also paces the visual reveal independently of network speed, since Groq's inference speed can otherwise make the streaming effect imperceptible for short answers.
 

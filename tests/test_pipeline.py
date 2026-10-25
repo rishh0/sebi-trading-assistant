@@ -16,13 +16,18 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
 class FakeVectorstore:
-    def __init__(self, chunks):
+    def __init__(self, chunks, distance=0.5):
         self.chunks = chunks
+        self.distance = distance  # top-match distance; > OUT_OF_SCOPE_DISTANCE means off-topic
         self.queries = []
 
     def similarity_search(self, query, k=5):
         self.queries.append((query, k))
         return self.chunks[:k]
+
+    def similarity_search_with_score(self, query, k=5):
+        self.queries.append((query, k))
+        return [(c, self.distance + i * 0.01) for i, c in enumerate(self.chunks[:k])]
 
 
 CHUNKS = [
@@ -162,3 +167,46 @@ def test_follow_up_retrieves_with_standalone_question(fake_llm, fake_corpus, fak
 def test_stream_follow_up_retrieves_with_standalone_question(fake_llm, fake_corpus, fake_condense):
     list(generate.generate_answer_stream("what about options?", history=HISTORY))
     assert fake_corpus.queries == [("How is STT charged on options?", 5)]
+
+
+# --- Out-of-scope declines ---
+
+@pytest.fixture
+def off_topic_corpus(mocker):
+    store = FakeVectorstore(CHUNKS, distance=generate.OUT_OF_SCOPE_DISTANCE + 0.2)
+    mocker.patch.object(generate, "get_vectorstore", return_value=store)
+    return store
+
+
+def test_off_topic_question_gets_specific_decline_without_llm_call(mocker, off_topic_corpus):
+    llm = mocker.patch.object(generate, "get_llm")
+    answer, chunks = generate.generate_answer("What's the weather in Mumbai?")
+    assert answer == generate.OUT_OF_SCOPE_MESSAGE
+    assert chunks == []
+    llm.assert_not_called()
+
+
+def test_off_topic_stream_sends_no_sources_and_decline(mocker, off_topic_corpus):
+    llm = mocker.patch.object(generate, "get_llm")
+    pieces = list(generate.generate_answer_stream("What's the weather in Mumbai?"))
+    assert pieces == ["::SOURCES::[]::END_SOURCES::", generate.OUT_OF_SCOPE_MESSAGE]
+    llm.assert_not_called()
+
+
+def test_question_just_inside_cutoff_still_reaches_llm(mocker, fake_llm):
+    store = FakeVectorstore(CHUNKS, distance=generate.OUT_OF_SCOPE_DISTANCE - 0.01)
+    mocker.patch.object(generate, "get_vectorstore", return_value=store)
+    answer, chunks = generate.generate_answer("borderline question")
+    assert answer == "Dec 2020."
+    assert chunks == CHUNKS
+
+
+def test_uploaded_documents_skip_the_out_of_scope_check(mocker, fake_llm):
+    uploaded = FakeVectorstore(CHUNKS, distance=99)
+    answer, _ = generate.generate_answer("anything", custom_vectorstore=uploaded)
+    assert answer == "Dec 2020."
+
+
+def test_out_of_scope_message_differs_from_insufficient_context_message():
+    assert generate.OUT_OF_SCOPE_MESSAGE not in generate.SYSTEM_PROMPT_TEMPLATE
+    assert "outside what I can help with" in generate.OUT_OF_SCOPE_MESSAGE

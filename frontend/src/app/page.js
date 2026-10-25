@@ -298,17 +298,19 @@ setMessages((prev) => {
               <div className="markdown-body">
                 <ReactMarkdown>{msg.answer}</ReactMarkdown>
               </div>
-              <div className="sources">
-                <strong>Sources:</strong>
-                <div className="sources-list">
-                  {msg.sources.map((src, i) => (
-                    <details key={i} className="source-item">
-                      <summary>{src.source}</summary>
-                      <p className="source-excerpt">{src.excerpt}...</p>
-                    </details>
-                  ))}
+              {msg.sources.length > 0 && (
+                <div className="sources">
+                  <strong>Sources:</strong>
+                  <div className="sources-list">
+                    {msg.sources.map((src, i) => (
+                      <details key={i} className="source-item">
+                        <summary>{src.source}</summary>
+                        <p className="source-excerpt">{src.excerpt}...</p>
+                      </details>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         ))}
