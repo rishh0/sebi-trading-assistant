@@ -2,19 +2,22 @@
 scripts/ingest.py
 
 Reads every PDF/TXT file in docs/, splits it into chunks, generates
-embeddings locally (free, no API key) using sentence-transformers,
+embeddings locally (free, no API key) using fastembed,
 and saves a FAISS vector store to data/faiss_index/ for later retrieval.
 
 Run with: python scripts/ingest.py
 """
 
 import os
+import sys
 from pathlib import Path
 
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
+
+sys.path.append(str(Path(__file__).parent.parent))  # allow `python scripts/<name>.py`
+from scripts.embeddings import LocalEmbeddings
 
 DOCS_DIR = Path("docs")
 INDEX_DIR = Path("data/faiss_index")
@@ -69,7 +72,7 @@ def main():
     print(f"  -> created {len(chunks)} chunks\n")
 
     print("Step 3/4: Loading embedding model (first run downloads it, then cached)...")
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    embeddings = LocalEmbeddings()
     print("  -> model ready\n")
 
     print("Step 4/4: Generating embeddings + building FAISS index...")
