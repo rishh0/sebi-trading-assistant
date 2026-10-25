@@ -19,7 +19,8 @@ def clear_sessions():
 
 @pytest.fixture
 def fake_faiss(mocker):
-    # Avoid calling the HF embedding API; we only care about upload handling here
+    # Skip loading the embedding model; we only care about upload handling here
+    mocker.patch.object(app_module, "get_embeddings", return_value="fake-embeddings")
     return mocker.patch.object(app_module.FAISS, "from_documents", return_value="fake-vectorstore")
 
 
