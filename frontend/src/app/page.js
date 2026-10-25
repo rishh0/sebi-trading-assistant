@@ -5,6 +5,8 @@ import ReactMarkdown from "react-markdown";
 import { useState, useRef, useEffect } from "react";
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // keep in sync with app.py
+const MAX_QUESTION_CHARS = 1000; // keep in sync with app.py
+const WAKE_BANNER_DELAY_MS = 1500; // only show the banner if the server is actually asleep
 
 export default function Home() {
   const [question, setQuestion] = useState("");
@@ -18,7 +20,33 @@ export default function Home() {
 
   const [showScrollButton, setShowScrollButton] = useState(false);
 
+  // "checking" -> "waking" (slow cold start) -> "ready", or "down" if unreachable
+  const [serverStatus, setServerStatus] = useState("checking");
+
   const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    // Wake the free-tier backend as soon as the page opens, so it's warm by
+    // the time the user has typed their first question.
+    let cancelled = false;
+    const bannerTimer = setTimeout(() => {
+      if (!cancelled) setServerStatus((s) => (s === "checking" ? "waking" : s));
+    }, WAKE_BANNER_DELAY_MS);
+
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/health`)
+      .then((res) => {
+        if (!cancelled) setServerStatus(res.ok ? "ready" : "down");
+      })
+      .catch(() => {
+        if (!cancelled) setServerStatus("down");
+      })
+      .finally(() => clearTimeout(bannerTimer));
+
+    return () => {
+      cancelled = true;
+      clearTimeout(bannerTimer);
+    };
+  }, []);
 
   useEffect(() => {
     const distanceFromBottom =
@@ -76,6 +104,13 @@ export default function Home() {
         clearUploadedDocument();
         setUploadError(data.detail || "Your uploaded document has expired. Please upload it again.");
         throw new Error("Session expired");
+      }
+
+      if (res.status === 429) {
+        const data = await res.json().catch(() => ({}));
+        const err = new Error("Rate limited");
+        err.userMessage = data.detail || "You're asking questions too quickly. Please wait a moment and try again.";
+        throw err;
       }
 
       if (!res.ok) {
@@ -146,7 +181,7 @@ setMessages((prev) => {
         const updated = [...prev];
         updated[updated.length - 1] = {
           ...updated[updated.length - 1],
-          answer: "Something went wrong reaching the assistant. Please try again in a moment.",
+          answer: err.userMessage || "Something went wrong reaching the assistant. Please try again in a moment.",
           streaming: false,
           error: true,
         };
@@ -207,6 +242,17 @@ setMessages((prev) => {
   return (
     <div className="container">
       <h1>SEBI Trading Compliance Assistant</h1>
+
+      {serverStatus === "waking" && (
+        <div className="server-banner" role="status">
+          Waking up the server. This can take up to a minute on the free tier, and you can type your question meanwhile.
+        </div>
+      )}
+      {serverStatus === "down" && (
+        <div className="server-banner server-banner-error" role="alert">
+          The server isn&apos;t responding right now. Please try again in a few minutes.
+        </div>
+      )}
 
       <div className="chat-window">
         {messages.length === 0 && (
@@ -282,6 +328,7 @@ setMessages((prev) => {
 
             <input
               className="main-input"
+              maxLength={MAX_QUESTION_CHARS}
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAsk()}
